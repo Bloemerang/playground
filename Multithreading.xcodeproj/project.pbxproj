@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		18AD50F41AEF54E700063954 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 18AD50F31AEF54E700063954 /* main.cpp */; };
+		18AD50FF1AEF6CCF00063954 /* EventBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 18AD50FD1AEF6CCF00063954 /* EventBuffer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,9 @@
 /* Begin PBXFileReference section */
 		18AD50F01AEF54E700063954 /* Multithreading */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Multithreading; sourceTree = BUILT_PRODUCTS_DIR; };
 		18AD50F31AEF54E700063954 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		18AD50FB1AEF5BB200063954 /* PetersonLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PetersonLock.h; sourceTree = "<group>"; };
+		18AD50FD1AEF6CCF00063954 /* EventBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventBuffer.cpp; sourceTree = "<group>"; };
+		18AD50FE1AEF6CCF00063954 /* EventBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventBuffer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +62,9 @@
 			isa = PBXGroup;
 			children = (
 				18AD50F31AEF54E700063954 /* main.cpp */,
+				18AD50FB1AEF5BB200063954 /* PetersonLock.h */,
+				18AD50FD1AEF6CCF00063954 /* EventBuffer.cpp */,
+				18AD50FE1AEF6CCF00063954 /* EventBuffer.h */,
 			);
 			path = Multithreading;
 			sourceTree = "<group>";
@@ -118,6 +125,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18AD50FF1AEF6CCF00063954 /* EventBuffer.cpp in Sources */,
 				18AD50F41AEF54E700063954 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -202,6 +210,8 @@
 		18AD50F81AEF54E700063954 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -209,6 +219,8 @@
 		18AD50F91AEF54E700063954 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
