@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <condition_variable>
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
@@ -40,23 +41,34 @@ static void dump_event_buffers(const EventBuffer event_buffer[2], Event::timesta
 template <bool fenced>
 using LockType = PetersonLock<__typeof__(&yield), fenced>;
 
+using std::mutex;
+using unique_lock = std::unique_lock<std::mutex>;
+
 template <typename Lock>
 void exercise_lock(unsigned loop_count)
 {
     Lock lock(&yield);
-    std::mutex require_mutex;
+    mutex require_mutex;
     std::thread thread[2];
     EventBuffer event_buffer[2];
     volatile int shared_value = 0;
     volatile bool start_running = false;
     volatile bool done_running[2] = {false,};
+
+    std::condition_variable start_running_cv,
+                             done_running_cv;
+    mutex start_running_mutex,
+           done_running_mutex;
+
     const Event::timestamp_t start_time = mach_absolute_time();
 
 #define REQUIRE(condition) do {                                                                     \
     if (!(condition)) {                                                                             \
         lock.release(tid);                                                                          \
         if (require_mutex.try_lock()) {                                                             \
-            while (!done_running[!tid]) yield();                                                    \
+            unique_lock done_running_lock(done_running_mutex);                                      \
+            done_running_cv.wait(done_running_lock, [&done_running, tid]() { return done_running[!tid]; }); \
+            done_running_lock.unlock();                                                             \
             printf("Requirement \"" #condition "\" failed at line %u!\n", __LINE__);                \
             printf("shared_value: %u\n", shared_value);                                             \
             printf("Dumping event buffers:\n");                                                     \
@@ -64,6 +76,7 @@ void exercise_lock(unsigned loop_count)
             require_mutex.unlock();                                                                 \
         }                                                                                           \
         done_running[tid] = true;                                                                   \
+        done_running_cv.notify_all();                                                               \
         return;                                                                                     \
     }                                                                                               \
 } while (0)
@@ -72,8 +85,9 @@ void exercise_lock(unsigned loop_count)
         thread[tid] = std::thread([&, tid]()
         {
             // Wait until the parent thread tells us to start
-            while (!start_running) {
-                yield();
+            {
+                unique_lock startup_lock(start_running_mutex);
+                start_running_cv.wait(startup_lock, [start_running]() { return start_running; });
             }
 
             EventBuffer &events = event_buffer[tid];
@@ -92,10 +106,12 @@ void exercise_lock(unsigned loop_count)
             }
 
             done_running[tid] = true;
+            done_running_cv.notify_all();
         });
     }
 
     start_running = true;
+    start_running_cv.notify_all();
 #undef REQUIRE
 
     for (unsigned tid = 0; tid < 2; ++tid) {
