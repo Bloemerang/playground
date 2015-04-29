@@ -81,10 +81,21 @@ public:
         m_thread_priority = other_thread;
 
         if (fenced) {
+            // If this line is skipped, the read of m_interested[other_thread] can happen before
+            // the write of m_interested[thread], due to them being separate memory locations.
             asm volatile("mfence" ::: "memory");
         }
 
         // Now that we've announced our interest, wait until the lock is available to us.
+        // If the other thread isn't trying to acquire, then it will not show up as interested.
+        // If it is interested, then whoever lost the data race on m_thread_priority gets to go
+        // first.
+        //
+        // The key thing is that the write to m_interested[thread] happens before the read of
+        // m_interested[other_thread]. This guarentees that at least one thread will notice the
+        // other's interest when executing concurrently. If both threads think they're the only
+        // one interested, then they'll both think they have the lock and allow the calling
+        // code to enter the critical section in both threads.
         while (m_interested[other_thread] && m_thread_priority == other_thread) {
             m_wait_function();
         }
