@@ -32,12 +32,7 @@
 #include "PetersonLock.h"
 #include "EventBuffer.h"
 
-static void yield()
-{
-    std::this_thread::yield();
-}
-
-static void dump_event_buffers(const EventBuffer event_buffer[2], Event::timestamp_t start_time);
+using std::this_thread::yield;
 
 template <bool fenced>
 using LockType = PetersonLock<__typeof__(&yield), fenced>;
@@ -46,11 +41,16 @@ using std::mutex;
 using unique_lock = std::unique_lock<std::mutex>;
 using std::condition_variable;
 
+
+static void dump_event_buffers(const EventBuffer event_buffer[2], Event::timestamp_t start_time);
+
 /**
  * Await a condition using the specified condition variable and predicate.
  *
  * Supports waiting on a condition which may already be true. Achieved by a combination of
  * waiting and polling.
+ *
+ * TODO: The code using this function really just wants a semaphore to encapsulate this stuff.
  */
 static void await_condition(condition_variable &cond_var, mutex &m, bool &cond)
 {
@@ -65,50 +65,69 @@ static void await_condition(condition_variable &cond_var, mutex &m, bool &cond)
     }
 }
 
+/**
+ * Pound on the specified lock type for the specified number of iterations.
+ */
 template <typename Lock>
 void exercise_lock(unsigned loop_count)
 {
     Lock lock(&yield);
-    mutex require_mutex;
     std::thread thread[2];
     EventBuffer event_buffer[2];
-    volatile int shared_value = 0;
-    bool start_running = false;
-    bool done_running[2] = {false,};
 
-    condition_variable start_running_cv,
-                        done_running_cv;
-    mutex start_running_mutex,
-           done_running_mutex;
+    volatile int shared_value = 0;
+
+    // A mutex to guard the violation handling code.
+    mutex require_mutex;
+
+    // A signal for other threads to stop when a thread detects a lock violation.
+    bool stop = false;
+
+    // Signaling variables used to detect when other threads have stopped.
+    bool done_running[2] = {false,};
+    condition_variable done_running_cv;
+    mutex done_running_mutex;
 
     const Event::timestamp_t start_time = mach_absolute_time();
 
+    for (unsigned tid = 0; tid < 2; ++tid) {
+        thread[tid] = std::thread([&, tid]()
+        {
+            EventBuffer &events = event_buffer[tid];
+
 #define REQUIRE(condition) do {                                                                     \
     if (!(condition)) {                                                                             \
-        lock.release(tid);                                                                          \
-        if (require_mutex.try_lock()) {                                                             \
-            await_condition(done_running_cv, done_running_mutex, done_running[!tid]);               \
-            printf("Requirement \"" #condition "\" failed at line %u!\n", __LINE__);                \
-            printf("shared_value: %u\n", shared_value);                                             \
-            printf("Dumping event buffers:\n");                                                     \
-            dump_event_buffers(event_buffer, start_time);                                           \
-            require_mutex.unlock();                                                                 \
-        }                                                                                           \
+        handle_violation("Requirement \"" #condition "\" failed at line %u!\n", __LINE__);          \
         done_running[tid] = true;                                                                   \
         done_running_cv.notify_all();                                                               \
         return;                                                                                     \
     }                                                                                               \
 } while (0)
 
-    for (unsigned tid = 0; tid < 2; ++tid) {
-        thread[tid] = std::thread([&, tid]()
-        {
-            // Wait until the parent thread tells us to start
-            await_condition(start_running_cv, start_running_mutex, start_running);
+            /**
+             * Stop the presses and dump failure info if a lock violation is detected.
+             *
+             * Releases the lock so other threads can finish up, so the lock had better already be
+             * acquired when you call this function.
+             */
+            auto handle_violation = [&](const char *failure_message, unsigned line)
+            {
+                if (require_mutex.try_lock()) {
+                    // Stop the other threads
+                    stop = true;
+                    lock.release(tid);
+                    await_condition(done_running_cv, done_running_mutex, done_running[!tid]);
 
-            EventBuffer &events = event_buffer[tid];
+                    // Dump failure information
+                    printf(failure_message, line);
+                    printf("shared_value: %u\n", shared_value);
+                    printf("Dumping event buffers:\n");
+                    dump_event_buffers(event_buffer, start_time);
+                    require_mutex.unlock();
+                }
+            };
 
-            for (unsigned i = 0; i < loop_count; ++i) {
+            for (unsigned i = 0; i < loop_count && !stop; ++i) {
                 
                 LOG(events, "Acquiring lock...");
                 lock.acquire(bool(tid));
@@ -123,12 +142,9 @@ void exercise_lock(unsigned loop_count)
 
             done_running[tid] = true;
             done_running_cv.notify_all();
+#undef REQUIRE
         });
     }
-
-    start_running = true;
-    start_running_cv.notify_all();
-#undef REQUIRE
 
     for (unsigned tid = 0; tid < 2; ++tid) {
         thread[tid].join();

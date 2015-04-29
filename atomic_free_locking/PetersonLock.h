@@ -36,7 +36,7 @@
  *
  * The core of the algorithm is that both threads set their own flag to announce their presence
  * and then check whether the other thread's flag is set. It turns out, though, that x86
- * doesn't guarantee the ordering of the write-and-then-read, which breaks the algorithm.
+ * doesn't guarantee the ordering of the write-then-read, which breaks the algorithm.
  *
  * This implementation forces the ordering with a memory fence conditional on a template
  * parameter, enabling test code to exercise the lock both with and without the fence.

@@ -38,7 +38,7 @@
 /**
  * A simple class that stores information about an event for later printing.
  *
- * Designed for low overhead logging.
+ * Optimized for low overhead logging.
  */
 class Event
 {
@@ -74,7 +74,7 @@ public:
 /**
  * A simple circular buffer for events in a specified thread.
  *
- * Designed for log overhead logging.
+ * Intended to be used by a single thread for log overhead logging.
  */
 class EventBuffer
 {
@@ -194,4 +194,4 @@ EventBuffer::ConstReverseIterator::operator!=(const ConstReverseIterator &that) 
     return !(*this == that);
 }
 
-#endif /* defined(__mutex__EventBuffer__) */
+#endif // _event_buffer_h
