@@ -24,7 +24,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		18AD50F01AEF54E700063954 /* Multithreading */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Multithreading; sourceTree = BUILT_PRODUCTS_DIR; };
+		18AD50F01AEF54E700063954 /* atomic_free_locking */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = atomic_free_locking; sourceTree = BUILT_PRODUCTS_DIR; };
 		18AD50F31AEF54E700063954 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		18AD50FB1AEF5BB200063954 /* PetersonLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PetersonLock.h; sourceTree = "<group>"; };
 		18AD50FD1AEF6CCF00063954 /* EventBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventBuffer.cpp; sourceTree = "<group>"; };
@@ -45,7 +45,7 @@
 		18AD50E71AEF54E700063954 = {
 			isa = PBXGroup;
 			children = (
-				18AD50F21AEF54E700063954 /* Multithreading */,
+				18AD50F21AEF54E700063954 /* atomic_free_locking */,
 				18AD50F11AEF54E700063954 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -53,12 +53,12 @@
 		18AD50F11AEF54E700063954 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				18AD50F01AEF54E700063954 /* Multithreading */,
+				18AD50F01AEF54E700063954 /* atomic_free_locking */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		18AD50F21AEF54E700063954 /* Multithreading */ = {
+		18AD50F21AEF54E700063954 /* atomic_free_locking */ = {
 			isa = PBXGroup;
 			children = (
 				18AD50F31AEF54E700063954 /* main.cpp */,
@@ -66,15 +66,15 @@
 				18AD50FD1AEF6CCF00063954 /* EventBuffer.cpp */,
 				18AD50FE1AEF6CCF00063954 /* EventBuffer.h */,
 			);
-			path = Multithreading;
+			path = atomic_free_locking;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		18AD50EF1AEF54E700063954 /* Multithreading */ = {
+		18AD50EF1AEF54E700063954 /* atomic_free_locking */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18AD50F71AEF54E700063954 /* Build configuration list for PBXNativeTarget "Multithreading" */;
+			buildConfigurationList = 18AD50F71AEF54E700063954 /* Build configuration list for PBXNativeTarget "atomic_free_locking" */;
 			buildPhases = (
 				18AD50EC1AEF54E700063954 /* Sources */,
 				18AD50ED1AEF54E700063954 /* Frameworks */,
@@ -84,9 +84,9 @@
 			);
 			dependencies = (
 			);
-			name = Multithreading;
-			productName = Multithreading;
-			productReference = 18AD50F01AEF54E700063954 /* Multithreading */;
+			name = atomic_free_locking;
+			productName = atomic_free_locking;
+			productReference = 18AD50F01AEF54E700063954 /* atomic_free_locking */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -103,7 +103,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 18AD50EB1AEF54E700063954 /* Build configuration list for PBXProject "Multithreading" */;
+			buildConfigurationList = 18AD50EB1AEF54E700063954 /* Build configuration list for PBXProject "playground" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -115,7 +115,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				18AD50EF1AEF54E700063954 /* Multithreading */,
+				18AD50EF1AEF54E700063954 /* atomic_free_locking */,
 			);
 		};
 /* End PBXProject section */
@@ -195,6 +195,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -228,7 +229,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		18AD50EB1AEF54E700063954 /* Build configuration list for PBXProject "Multithreading" */ = {
+		18AD50EB1AEF54E700063954 /* Build configuration list for PBXProject "playground" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18AD50F51AEF54E700063954 /* Debug */,
@@ -237,13 +238,14 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18AD50F71AEF54E700063954 /* Build configuration list for PBXNativeTarget "Multithreading" */ = {
+		18AD50F71AEF54E700063954 /* Build configuration list for PBXNativeTarget "atomic_free_locking" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				18AD50F81AEF54E700063954 /* Debug */,
 				18AD50F91AEF54E700063954 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
